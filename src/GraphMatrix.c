@@ -8,7 +8,8 @@
 
 typedef struct GraphMatrix {
   int vertices;
-  int** matrix;
+  int** weightMatrix;
+  int** edgeMatrix;
 } GraphMatrix;
 
 
@@ -22,8 +23,8 @@ GraphMatrix* create_graph(int vertexCount) {
 
   graph->vertices = vertexCount;
 
-  int** matrix = (int**)malloc(sizeof(int*)  * vertexCount);
-  if (!matrix) {
+  int** weightMatrix = (int**)malloc(sizeof(int*)  * vertexCount);
+  if (!weightMatrix) {
     printf("Could not initialize matrix!\n");
     return NULL;
   }
@@ -39,20 +40,42 @@ GraphMatrix* create_graph(int vertexCount) {
       row[x] = 0;
     }
 
-    matrix[y] = row;
+    weightMatrix[y] = row;
   }
-  graph->matrix = matrix;
+  graph->weightMatrix = weightMatrix;
+
+  int** edgeMatrix = (int**)malloc(sizeof(int*) * vertexCount);
+  if (!edgeMatrix) {
+      printf("Could not initialize matrix!\n");
+      return NULL;
+  }
+
+  for (int y = 0; y < vertexCount; y++) {
+      int* row = (int*)malloc(sizeof(int) * vertexCount);
+      if (!row) {
+          printf("Could not initialize row!\n");
+          return NULL;
+      }
+
+      for (int x = 0; x < vertexCount; x++) {
+          row[x] = 0;
+      }
+
+      edgeMatrix[y] = row;
+  }
+  graph->edgeMatrix = edgeMatrix;
 
   return graph;
 }
 
-void addEdge(GraphMatrix* graph, int from, int to, int weight) {
+void addWeight(GraphMatrix* graph, int from, int to, int weight) {
   if (!graph) {
     printf("No graph provided!");
     return;
   }
 
-  graph->matrix[from][to] = weight;
+  //graph->edgeMatrix[from][to] = 1;
+  graph->weightMatrix[from][to] = weight;
   if (DEBUG_FLAG)
     printf("[DEBUG] Added edge from vertex %d to vertex %d with weight %d\n", from, to, weight);
 }
@@ -67,6 +90,7 @@ void printGraph(GraphMatrix* graph) {
 
     int vertexCount = graph->vertices;
 
+    printf("\nWeightMatrix:\n");
     // Vertex Names Row
     printf("      ");
     for (int idx = 0; idx < vertexCount; idx++) {
@@ -79,7 +103,30 @@ void printGraph(GraphMatrix* graph) {
         printf("%4d  ", y);
 
         for (int x = 0; x < vertexCount; x++) {
-            printf("%4d ", graph->matrix[y][x]);
+            printf("%4d ", graph->weightMatrix[y][x]);
+        }
+
+        printf("\n");
+    }
+
+    // Padding for readability
+    printf("\n\n");
+
+
+    printf("\nEdgeMatrix:\n");
+    // Vertex Names Row
+    printf("      ");
+    for (int idx = 0; idx < vertexCount; idx++) {
+        printf("%4d ", idx);
+    }
+    printf("\n\n");
+
+    for (int y = 0; y < vertexCount; y++) {
+        // Vertex Names Column
+        printf("%4d  ", y);
+
+        for (int x = 0; x < vertexCount; x++) {
+            printf("%4d ", graph->edgeMatrix[y][x]);
         }
 
         printf("\n");
@@ -102,7 +149,7 @@ void createMSTPrim(GraphMatrix* graph, int startNode) {
 
     int vertexCount = graph->vertices;
     int currVertex = startNode;
-    int** matrix = graph->matrix;
+    int** matrix = graph->weightMatrix;
 
     int* visited = (int*)malloc(sizeof(int) * vertexCount);
     if (!visited) {
@@ -130,6 +177,7 @@ void createMSTPrim(GraphMatrix* graph, int startNode) {
         visited[minNode] = 1;
         // Add edge
         printf("[PRIM] Add Edge from vertex %d to vertex %d\n", idx, minNode);
+        graph->edgeMatrix[idx][minNode] = 1;
         currVertex = minNode;
     }
 }
@@ -147,7 +195,7 @@ void addRandomWeights(GraphMatrix* graph, int max) {
             if (a == b)
                 continue;
 
-            addEdge(graph, a, b, rand() % max);
+            addWeight(graph, a, b, rand() % max);
         }
     }
 

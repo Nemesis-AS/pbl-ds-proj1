@@ -16,8 +16,8 @@ int main ()
 
 	printGraph(graph);
 	addRandomWeights(graph, 250);
-	printGraph(graph);
 	createMSTPrim(graph, 0);
+	printGraph(graph);
 
 	return 0;
 }
