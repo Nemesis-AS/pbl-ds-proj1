@@ -14,44 +14,6 @@ int main ()
 {
 	srand(time(NULL));
 
-	// Test Case
-	int m[4][4] = {
-		{ 0, 2, 4, 6 },
-		{ 2, 0, 3, 5 },
-		{ 4, 3, 0, 7 },
-		{ 6, 5, 7, 0 }
-	};
-
-	//GraphMatrix* graph = create_graph(4);
-	////printGraph(graph);
-	////addWeight();
-	//
-	//for (int x = 0; x < 4; x++) {
-	//	for (int y = 0; y < 4; y++) {
-	//		addWeight(graph, x, y, m[x][y]);
-	//	}
-	//}
-	//printGraph(graph);
-
-	//addRandomWeights(graph, 250);
-	//createMSTPrim(graph, 0);
-	//printGraph(graph);
-
-	//Graph* graph = init_graph();
-	////randomizeGraph(graph, 4, 250);
-	//for (int idx = 0; idx < 4; idx++)
-	//	addVertex(graph, idx);
-	//for (int x = 0; x < 4; x++) {
-	//	for (int y = 0; y < 4; y++) {
-	//		if (x == y) continue;
-
-	//		addListWeight(graph, x, y, m[x][y]);
-	//	}
-	//}
-	//createMSTKruskal(graph);
-	//printListGraph(graph);
-
-
 	const int POINT_RADIUS = 5;
 	const int POINT_COUNT = 5;
 	//GameStateMatrix* state = initializeGameMatrix(POINT_COUNT, POINT_RADIUS);

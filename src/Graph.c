@@ -27,14 +27,14 @@ typedef struct GraphWeight {
 	struct GraphWeight* nextWeight;
 } GraphWeight;
 
-typedef struct Graph {
+typedef struct GraphList {
 	int vertexCount;
 	GraphVertex* vertices;
 	GraphWeight* weights;
-} Graph;
+} GraphList;
 
-Graph* init_graph() {
-	Graph* graph = (Graph*)malloc(sizeof(Graph));
+GraphList* init_graph() {
+	GraphList* graph = (GraphList*)malloc(sizeof(GraphList));
 
 	if (graph == NULL) {
 		printf("Could not initialize graph!\n");
@@ -48,7 +48,7 @@ Graph* init_graph() {
 	return graph;
 }
 
-void addVertex(Graph* graph, int value) {
+void addVertex(GraphList* graph, int value) {
 	if (graph == NULL) {
 		printf("Please provide a valid graph!\n");
 		return;
@@ -81,7 +81,7 @@ void addVertex(Graph* graph, int value) {
 		printf("[DEBUG] Added vertex %d to graph!\n", value);
 }
 
-void addEdge(Graph* graph, int from, int to, int weight) {
+void addEdge(GraphList* graph, int from, int to, int weight) {
 	// Steps:
 	// 1. Go to the from vertex
 	// 2. Check if the edge already exists
@@ -131,7 +131,7 @@ void addEdge(Graph* graph, int from, int to, int weight) {
 	currEdge->nextEdge = newEdge;
 }
 
-void printListGraph(Graph* graph) {
+void printListGraph(GraphList* graph) {
 	if (!graph) {
 		printf("No graph provided!");
 		return;
@@ -160,7 +160,7 @@ void printListGraph(Graph* graph) {
 	}
 }
 
-void addListWeight(Graph* graph, int from, int to, int weight) {
+void addListWeight(GraphList* graph, int from, int to, int weight) {
 	if (!graph) {
 		printf("No graph provided!\n");
 		return;
@@ -212,7 +212,7 @@ void addListWeight(Graph* graph, int from, int to, int weight) {
 		printf("[DEBUG] Added weight from vertex %4d to vertex %4d with weight %4d\n", from, to, weight);
 }
 
-void randomizeGraph(Graph* graph, int nodeCount, int max) {
+void randomizeGraph(GraphList* graph, int nodeCount, int max) {
 	if (!graph) {
 		printf("No graph provided!\n");
 		return;
@@ -246,7 +246,7 @@ void insertion_sort(GraphWeight** edges, int edgeCount) {
 	}
 }
 
-void createMSTKruskal(Graph* graph) {
+void createMSTKruskal(GraphList* graph) {
 	if (!graph || !graph->weights) {
 		printf("Graph is empty or has no edges!\n");
 		return;

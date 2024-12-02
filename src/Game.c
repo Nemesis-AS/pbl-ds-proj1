@@ -14,57 +14,10 @@ typedef struct GameStateMatrix {
 } GameStateMatrix;
 
 typedef struct GameStateList {
-	Graph* graph;
+	GraphList* graph;
 	Vector2* points;
 	int drawn;
 } GameStateList;
-
-int runGame() {
-	srand(time(NULL));
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-
-	// Create the window and OpenGL context
-	InitWindow(screenWidth, screenHeight, "DS Project");
-
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
-
-	const int POINT_COUNT = 20;
-	const int POINT_RADIUS = 5;
-	Vector2* points = malloc(POINT_COUNT * sizeof(Vector2));
-
-	for (int idx = 0; idx < POINT_COUNT; idx++) {
-		points[idx] = (Vector2){ POINT_RADIUS + (rand() % (screenWidth - (2 * POINT_RADIUS))), POINT_RADIUS + (rand() % (screenHeight - (2 * POINT_RADIUS))) };
-	}
-
-	// game loop
-	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
-	{
-		BeginDrawing();
-
-		ClearBackground(BLACK);
-
-		// Draw points on screen
-		for (int idx = 0; idx < POINT_COUNT; idx++) {
-			DrawCircle(points[idx].x, points[idx].y, 5, RAYWHITE);
-		}
-
-		// Draw edges
-		for (int p1 = 0; p1 < POINT_COUNT; p1++) {
-			for (int p2 = 0; p2 < POINT_COUNT; p2++) {
-				if (p1 == p2)
-					continue;
-
-				DrawLine(points[p1].x, points[p1].y, points[p2].x, points[p2].y, RAYWHITE);
-			}
-		}
-
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
-		EndDrawing();
-	}
-
-	CloseWindow();
-}
 
 float edistance(float x1, float y1, float x2, float y2) {
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -133,7 +86,7 @@ GameStateList* initializeGameList(int pointCount, int POINT_RADIUS) {
 	}
 	state->points = points;
 
-	Graph* graph = init_graph();
+	GraphList* graph = init_graph();
 	for (int idx = 0; idx < pointCount; idx++)
 		addVertex(graph, idx);
 

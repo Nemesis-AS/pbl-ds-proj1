@@ -61,7 +61,6 @@ void enqueue(PriorityQueue* q, int val, int from, int to) {
 	currNode->next = newNode;
 }
 
-
 ListNode* dequeue(PriorityQueue* q) {
 	if (!q) {
 		printf("No queue provided!\n");
