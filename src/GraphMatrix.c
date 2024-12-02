@@ -195,6 +195,8 @@ void createMSTPrim(GraphMatrix* graph, int startNode) {
                 enqueue(q, matrix[edge->to][idx], edge->to, idx);
         }
     }
+
+    free(visited);
 }
 
 // Utility Method

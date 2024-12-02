@@ -1,4 +1,5 @@
 #include <math.h>
+#include <time.h>
 #include "raylib.h"
 
 #include "resource_dir.h"
@@ -148,4 +149,9 @@ GameStateList* initializeGameList(int pointCount, int POINT_RADIUS) {
 	state->graph = graph;
 
 	return state;
+}
+
+void waitFor(unsigned int secs) {
+	unsigned int retTime = time(0) + secs;
+	while (time(0) < retTime);
 }

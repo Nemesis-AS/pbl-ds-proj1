@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #endif
 
+#include "union-find.c"
+
 #ifndef DEBUG_FLAG
 #define DEBUG_FLAG 0
 #endif
@@ -231,55 +233,76 @@ void randomizeGraph(Graph* graph, int nodeCount, int max) {
 	}
 }
 
+void insertion_sort(GraphWeight** edges, int edgeCount) {
+	for (int i = 1; i < edgeCount; i++) {
+		GraphWeight* key = edges[i];
+		int j = i - 1;
+
+		while (j >= 0 && edges[j]->weight > key->weight) {
+			edges[j + 1] = edges[j];
+			j--;
+		}
+		edges[j + 1] = key;
+	}
+}
+
 void createMSTKruskal(Graph* graph) {
-	if (!graph) {
-		printf("No graph provided!\n");
+	if (!graph || !graph->weights) {
+		printf("Graph is empty or has no edges!\n");
 		return;
 	}
 
-	int* visited = (int*)malloc(sizeof(int) * graph->vertexCount);
-	for (int idx = 0; idx < graph->vertexCount; idx++)
-		visited[idx] = 0;
-
-	// Step1: Sort weights
-	int weightCount = graph->vertexCount * (graph->vertexCount - 1); // TODO: Get rid of this magic number of n(n - 1)
-	GraphWeight** weights = (GraphWeight*)malloc(sizeof(GraphWeight*) * weightCount);
-	GraphWeight* currWeight = graph->weights;
-
-	for (int idx = 0; idx < weightCount; idx++) {
-		weights[idx] = currWeight;
-		currWeight = currWeight->nextWeight;
-		
-		if (currWeight == NULL)
-			break;
+	union_find_elem_t** vertex_sets = malloc(sizeof(union_find_elem_t*) * graph->vertexCount);
+	if (!vertex_sets) {
+		printf("Memory allocation failed!\n");
+		return;
 	}
 
-	for (int i = 0; i < weightCount; i++) {
-		int min = i;
-		for (int j = i + 1; j < weightCount; j++) {
-			if (weights[j]->weight < weights[min]->weight)
-				min = j;
+	GraphVertex* currentVertex = graph->vertices;
+	int vertexIndex = 0;
+	while (currentVertex) {
+		vertex_sets[vertexIndex] = make_set((void*)currentVertex);
+		currentVertex = currentVertex->nextVertex;
+		vertexIndex++;
+	}
+
+	int edgeCount = 0;
+	GraphWeight* weightNode = graph->weights;
+	while (weightNode) {
+		edgeCount++;
+		weightNode = weightNode->nextWeight;
+	}
+
+	GraphWeight** edges = malloc(sizeof(GraphWeight*) * edgeCount);
+	if (!edges) {
+		printf("Memory allocation failed!\n");
+		free(vertex_sets);
+		return;
+	}
+
+	weightNode = graph->weights;
+	for (int i = 0; i < edgeCount; i++) {
+		edges[i] = weightNode;
+		weightNode = weightNode->nextWeight;
+	}
+
+	insertion_sort(edges, edgeCount);
+
+	int mstEdgeCount = 0;
+	for (int i = 0; i < edgeCount && mstEdgeCount < graph->vertexCount - 1; i++) {
+		GraphWeight* edge = edges[i];
+
+		union_find_elem_t* setFrom = find(vertex_sets[edge->from]);
+		union_find_elem_t* setTo = find(vertex_sets[edge->to]);
+
+		if (setFrom != setTo) {
+			printf("[KRUSKAl] Add Edge from vertex %d to vertex %d\n", edge->from, edge->to);
+			addEdge(graph, edge->from, edge->to, edge->weight);
+			merge(setFrom, setTo);
+			mstEdgeCount++;
 		}
-
-		GraphWeight* tmp = weights[i];
-		weights[i] = weights[min];
-		weights[min] = tmp;
 	}
 
-	if (DEBUG_FLAG) {
-		printf("\n\nSorted Weights:\n");
-		for (int idx = 0; idx < weightCount; idx++) {
-			printf("[WEIGHT] from: %4d, to %4d, weight: %4d\n", weights[idx]->from, weights[idx]->to, weights[idx]->weight);
-		}
-	}
-
-	for (int idx = 0; idx < weightCount; idx++) {
-		GraphWeight* weight = weights[idx];
-
-		if (visited[weight->from] == 0 || visited[weight->to] == 0) {
-			addEdge(graph, weight->from, weight->to, weight->weight);
-			visited[weight->from] = 1;
-			visited[weight->to] = 1;
-		}
-	}
+	free(vertex_sets);
+	free(edges);
 }
