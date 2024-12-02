@@ -2,6 +2,8 @@
 #include <stdio.h>
 #endif /* ifndef NULL */
 
+#include "PriorityQueue.c"
+
 #ifndef DEBUG_FLAG
 #define DEBUG_FLAG 0
 #endif
@@ -136,6 +138,14 @@ void printGraph(GraphMatrix* graph) {
     printf("\n\n");
 }
 
+void printArr(int* arr, int size) {
+    printf("Arr: ");
+    for (int idx = 0; idx < size; idx++) {
+        printf("%d ", arr[idx]);
+    }
+    printf("\n");
+}
+
 void createMSTPrim(GraphMatrix* graph, int startNode) {
     if (!graph) {
         printf("No graph provided!");
@@ -161,24 +171,29 @@ void createMSTPrim(GraphMatrix* graph, int startNode) {
         visited[idx] = 0;
     visited[currVertex] = 1;
 
-    for (int idx = 0; idx < vertexCount - 1; idx++) {
-        int minNode = 0;
-        if (currVertex == 0)
-            minNode = 1;
+    PriorityQueue* q = create_queue();
+    // Add weights to priority queue
+    for (int idx = 0; idx < vertexCount; idx++) {
+        if (idx == currVertex) continue;
+        enqueue(q, matrix[currVertex][idx], currVertex, idx);
+    }
 
-        for (int to = 0; to < vertexCount; to++) {
-            if (to == minNode)
-                continue;
-            
-            if (visited[to] == 0 && matrix[currVertex][to] < matrix[currVertex][minNode])
-                minNode = to;
+    while (q->size > 0) {
+        ListNode* edge = dequeue(q);
+
+        if (visited[edge->to] == 1)
+            continue;
+
+        printf("[PRIM] Add Edge from vertex %d to vertex %d\n", edge->from, edge->to);
+        graph->edgeMatrix[edge->from][edge->to] = 1;
+        visited[edge->to] = 1;
+
+        for (int idx = 0; idx < vertexCount; idx++) {
+            if (idx == edge->to) continue;
+
+            if (visited[idx] == 0)
+                enqueue(q, matrix[edge->to][idx], edge->to, idx);
         }
-
-        visited[minNode] = 1;
-        // Add edge
-        printf("[PRIM] Add Edge from vertex %d to vertex %d\n", idx, minNode);
-        graph->edgeMatrix[idx][minNode] = 1;
-        currVertex = minNode;
     }
 }
 
